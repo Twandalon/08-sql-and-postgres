@@ -16,7 +16,7 @@ const app = express();
 // const conString = 'postgres://USER:PASSWORD@HOST:PORT/DBNAME';
 const conString = 'postgres://localhost:5432/kilovolt';
 
-// TODO: Our pg module has a Client constructor that accepts one argument: the conString we just defined.
+// DONE: Our pg module has a Client constructor that accepts one argument: the conString we just defined.
 //       This is how it knows the URL and, for Windows and Linux users, our username and password for our
 //       database when client.connect is called on line 26. Thus, we need to pass our conString into our
 //       pg.Client() call.
@@ -36,6 +36,7 @@ app.use(express.static('./public'));
 app.get('/new', function(request, response) {
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
   // Put your response here...
+  // This part is using 2, 5 and 1 of the full stack diagram. We are using the read portion of crud with this function.
   response.sendFile('new.html', {root: './public'});
 });
 
@@ -44,6 +45,8 @@ app.get('/new', function(request, response) {
 app.get('/articles', function(request, response) {
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
   // Put your response here...
+  // this uses 2 through 5 of the full stack diagram. We are using the read portion of crud.
+
   client.query('SELECT * FROM articles')
   .then(function(result) {
     response.send(result.rows);
@@ -56,6 +59,7 @@ app.get('/articles', function(request, response) {
 app.post('/articles', function(request, response) {
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
   // Put your response here...
+  // this uses 2 through 5 of the diagram. In this we are creating all the articles in the database.
   client.query(
     `
       INSERT INTO
@@ -82,22 +86,23 @@ app.post('/articles', function(request, response) {
 app.put('/articles/:id', function(request, response) {
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
   // Put your response here...
-  client.query(
-    `UPDATE articles
-    SET
-      title=$1, author=$2, "authorUrl"=$3, category=$4, "publishedOn"=$5, body=$6
-    WHERE article_id=$7;
-    `,
-    [
-      request.body.title,
-      request.body.author,
-      request.body.authorUrl,
-      request.body.category,
-      request.body.publishedOn,
-      request.body.body,
-      request.params.id
-    ]
-  )
+  // this is 2 thorugh 5 of the diagram. We are using the update protion of crud.
+  let query = `UPDATE articles
+  SET
+    title=$1, author=$2, "authorUrl"=$3, category=$4, "publishedOn"=$5, body=$6
+  WHERE article_id=$7;
+  `;
+  let cols = [
+    request.body.title,
+    request.body.author,
+    request.body.authorUrl,
+    request.body.category,
+    request.body.publishedOn,
+    request.body.body,
+    request.params.id
+  ];
+
+  client.query(query, cols)
   .then(function() {
     response.send('update complete')
   })
@@ -109,6 +114,7 @@ app.put('/articles/:id', function(request, response) {
 app.delete('/articles/:id', function(request, response) {
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
   // Put your response here...
+  // this is using 2 through 5 of the diagram. We are using delete from crud.
   client.query(
     `DELETE FROM articles WHERE article_id=$1;`,
     [request.params.id]
@@ -124,6 +130,7 @@ app.delete('/articles/:id', function(request, response) {
 app.delete('/articles', function(request, response) {
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
   // Put your response here...
+  // We're using 2 through 5 of the diagram. we are using delet from crud.
   client.query(
     'DELETE FROM articles;'
   )
@@ -140,6 +147,7 @@ app.delete('/articles', function(request, response) {
 
 // COMMENT: What is this function invocation doing?
 // Put your response here...
+// this is using 3 through 5 of the diagram. this is using the create portion of crud.
 loadDB();
 
 app.listen(PORT, function() {
@@ -152,6 +160,7 @@ app.listen(PORT, function() {
 function loadArticles() {
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
   // Put your response here...
+  // this is using 2 through 5 of the diagram. we are using the create from crud.
   client.query('SELECT COUNT(*) FROM articles')
   .then(function(result) {
     // REVIEW: result.rows is an array of objects that Postgres returns as a response to a query.
@@ -179,6 +188,7 @@ function loadArticles() {
 function loadDB() {
   // COMMENT: What number(s) of the full-stack-diagram.png image correspond to the following line of code? Which method of article.js is interacting with this particular piece of `server.js`? What part of CRUD is being enacted/managed by this particular piece of code?
   // Put your response here...
+  // this is using 3 through 4 of the diagram. this is using create from crud.
   client.query(`
     CREATE TABLE IF NOT EXISTS articles (
       article_id SERIAL PRIMARY KEY,
